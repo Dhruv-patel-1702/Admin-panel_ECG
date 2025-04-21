@@ -16,7 +16,7 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/login" element={<Login />} />
+        <Route path="/" element={<Login />} />
         <Route path="/" element={<Dashboard />}>
           <Route path="/userlist" element={<UserList />} />
           <Route path="/devicelist" element={<DeviceList />} />
@@ -27,7 +27,6 @@ function App() {
           <Route path="/dietpreferences" element={<DietPreferences />} />
           <Route path="/contactus" element={<ContactUs />} />
           <Route path="/adddiet" element={<Adddiet />} />
-
         </Route>
       </Routes>
     </BrowserRouter>

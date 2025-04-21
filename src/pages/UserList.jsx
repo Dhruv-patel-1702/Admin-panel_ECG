@@ -6,12 +6,7 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  TablePagination,
-  TextField,
-  Select,
-  MenuItem,
-  FormControl,
-  InputLabel,
+  TablePagination
 } from "@mui/material";
 import Header from "../Components/Header";
 import { Link } from "react-router-dom";
@@ -227,7 +222,7 @@ const UserList = (props) => {
   return (
     <>
       <Header name="UserList" />
-      {/* Search Bar and Filters */}
+     
       <div className="flex space-x-4 mt-20 mb-4 w-[70%]">
         <input
           type="text"
@@ -243,11 +238,11 @@ const UserList = (props) => {
                 row.name.toLowerCase().includes(value.toLowerCase())
               );
             } else {
-              setSearchQuery(""); 
+              setSearchQuery("");
             }
           }}
           onInput={(event) => {
-            event.target.value = event.target.value.replace(/[^a-zA-Z\s]/g, ""); 
+            event.target.value = event.target.value.replace(/[^a-zA-Z\s]/g, "");
           }}
         />
 
@@ -270,17 +265,17 @@ const UserList = (props) => {
                 row.mobile.includes(value)
               );
             } else {
-              setSearchQuery(""); 
+              setSearchQuery("");
             }
           }}
           onInput={(event) => {
-            event.target.value = event.target.value.replace(/\D/g, ""); 
+            event.target.value = event.target.value.replace(/\D/g, "");
           }}
         />
 
-<input
+        <input
           type="text"
-          placeholder="Search by Mobile"
+          placeholder="Search by Email"
           style={{
             flex: 1,
             padding: "8px",

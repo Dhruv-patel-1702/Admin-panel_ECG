@@ -107,6 +107,7 @@ const ContactUs = () => {
               <TableCell className="font-bold ">Name</TableCell>
               <TableCell className="font-bold ">Email</TableCell>
               <TableCell className="font-bold ">Description</TableCell>
+              <TableCell className="font-bold "></TableCell>
             </TableRow>
           </TableHead>
           <TableBody>

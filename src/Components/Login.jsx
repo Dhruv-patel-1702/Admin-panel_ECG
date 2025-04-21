@@ -10,11 +10,11 @@ const Login = () => {
 
   return (
     <div className=" flex justify-center items-center w-full min-h-[100vh] bg-[url('https://plus.unsplash.com/premium_photo-1676325101744-ce4a45a331c7?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')] bg-cover bg-center relative ">
-      <div className="bg-white rounded-lg shadow-lg p-8 w-96">
-        <p className="text-center mb-6 font-semibold text-2xl">
+      <div className="bg-white rounded-lg shadow-lg p-8 w-96 sm: mx-5 ">
+        <p className="text-center mb-6 font-semibold text-2xl sm: mb-2">
           Login
         </p>
-        <h2 className="text-xl font-semibold mb-2">Email </h2>
+        <h2 className="text-xl font-semibold mb-2 sm: text-sm">Email </h2>
         <div className="mb-4">
           <div className="relative">
             <div className="absolute inset-y-0 left-4 flex items-center">
@@ -43,7 +43,7 @@ const Login = () => {
           </div>
         </div>
         <div className="mb-2">
-          <h2 className="text-xl font-semibold mb-2">Password</h2>
+          <h2 className="text-xl font-semibold mb-2 ">Password</h2>
           <div className="relative">
             <div className="absolute inset-y-0 left-4 flex items-center">
               <svg

@@ -18,174 +18,176 @@ const DeviceList = () => {
       id: "Seth",
       name: "Lucas",
       type: 26,
-      status: "Active" ,
+      status: "Active",
       view: "View",
     },
     {
       id: "Seth",
       name: "Lucas",
       type: 26,
-      status: "Active" ,
+      status: "Active",
       view: "View",
     },
     {
       id: "Seth",
       name: "Lucas",
       type: 26,
-      status: "Active" ,
+      status: "Active",
       view: "View",
     },
     {
       id: "Seth",
       name: "Lucas",
       type: 26,
-      status: "Active" ,
+      status: "Active",
       view: "View",
     },
     {
       id: "Seth",
       name: "Lucas",
       type: 26,
-      status: "Active" ,
+      status: "Active",
       view: "View",
     },
     {
       id: "Seth",
       name: "Lucas",
       type: 26,
-      status: "Active" ,
+      status: "Active",
       view: "View",
     },
     {
       id: "Seth",
       name: "Lucas",
       type: 26,
-      status: "Active" ,
+      status: "Active",
       view: "View",
     },
     {
       id: "Seth",
       name: "Lucas",
       type: 26,
-      status: "Active" ,
+      status: "Active",
       view: "View",
     },
     {
       id: "Seth",
       name: "Lucas",
       type: 26,
-      status: "Active" ,
+      status: "Active",
       view: "View",
     },
     {
       id: "Seth",
       name: "Lucas",
       type: 26,
-      status: "Active" ,
+      status: "Active",
       view: "View",
     },
     {
       id: "Seth",
       name: "Lucas",
       type: 26,
-      status: "Active" ,
+      status: "Active",
       view: "View",
     },
     {
       id: "Seth",
       name: "Lucas",
       type: 26,
-      status: "Active" ,
+      status: "Active",
       view: "View",
     },
     {
       id: "Seth",
       name: "Lucas",
       type: 26,
-      status: "Active" ,
+      status: "Active",
       view: "View",
     },
     {
       id: "Seth",
       name: "Lucas",
       type: 26,
-      status: "Active" ,
+      status: "Active",
       view: "View",
     },
     {
       id: "Seth",
       name: "Lucas",
       type: 26,
-      status: "Active" ,
+      status: "Active",
       view: "View",
     },
     {
       id: "Seth",
       name: "Lucas",
       type: 26,
-      status: "Active" ,
+      status: "Active",
       view: "View",
     },
     {
       id: "Seth",
       name: "Lucas",
       type: 26,
-      status: "Active" ,
+      status: "Active",
       view: "View",
     },
     {
       id: "Seth",
       name: "Lucas",
       type: 26,
-      status: "Active" ,
+      status: "Active",
       view: "View",
     },
     {
       id: "Seth",
       name: "Lucas",
       type: 26,
-      status: "Active" ,
+      status: "Active",
       view: "View",
     },
     {
       id: "Seth",
       name: "Lucas",
       type: 26,
-      status: "Active" ,
+      status: "Active",
       view: "View",
     },
     {
       id: "Seth",
       name: "Lucas",
       type: 26,
-      status: "Active" ,
+      status: "Active",
+      view: "View",
+    },
+    {
+      id: "DDDD",
+      name: "Lucas",
+      type: 26,
+      status: "Active",
       view: "View",
     },
     {
       id: "Seth",
-      name: "Lucas",
-      type: 26,
-      status: "Active" ,
+      name: "ppppp",
+      type: 30,
+      status: "Active",
       view: "View",
     },
     {
       id: "Seth",
-      name: "Lucas",
-      type: 26,
-      status: "Active" ,
+      name: "pppp",
+      type: 30,
+      status: "Active",
       view: "View",
     },
-    {
-      id: "Seth",
-      name: "Lucas",
-      type: 26,
-      status: "Active" ,
-      view: "View",
-    }
   ];
 
   const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(30);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [deviceNameQuery, setDeviceNameQuery] = useState("");
+  const [typeQuery, setTypeQuery] = useState("");
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -196,13 +198,36 @@ const DeviceList = () => {
     setPage(0);
   };
 
+  const filteredRows = rows.filter(
+    (row) =>
+      row.name.toLowerCase().includes(deviceNameQuery.toLowerCase()) &&
+      row.type.toString().includes(typeQuery)
+  );
+
   return (
     <>
       <Header name="DeviceList" />
+      <div className="flex space-x-4 mt-20 mb-4 w-[50%]">
+        <input
+          type="text"
+          placeholder="Search by DeviceName"
+          className="flex-1 p-2 border border-gray-300 rounded"
+          onChange={(event) => {
+            setDeviceNameQuery(event.target.value);
+          }}
+        />    
+        <input
+          type="text"
+          placeholder="Search by Type"
+          className="flex-1 p-2 border border-gray-300 rounded"
+          onChange={(event) => {
+            setTypeQuery(event.target.value);
+          }}
+        />
+      </div>
       <TableContainer
-        className="shadow-lg rounded-lg ml-1 overflow-auto mt-14 "
-        style={{ height: "795px" }}
-        name="UserDetails"
+        className="shadow-lg rounded-lg ml-1 overflow-auto mt-4"
+        style={{ maxHeight: "700px" }}
       >
         <Table stickyHeader className="px-2">
           <TableHead className="bg-[#9fb1e7] ">
@@ -215,7 +240,7 @@ const DeviceList = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {rows
+            {filteredRows
               .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
               .map((row, index) => (
                 <TableRow key={index} className="hover:bg-gray-100 ">
@@ -223,7 +248,9 @@ const DeviceList = () => {
                   <TableCell>{row.name}</TableCell>
                   <TableCell>{row.type}</TableCell>
                   <TableCell>{row.status}</TableCell>
-                  <TableCell><Link to="/devicedetails">{row.view}</Link></TableCell>
+                  <TableCell>
+                    <Link to="/devicedetails">{row.view}</Link>
+                  </TableCell>
                 </TableRow>
               ))}
           </TableBody>
@@ -232,7 +259,7 @@ const DeviceList = () => {
       <TablePagination
         rowsPerPageOptions={[10, 25, 100]}
         component="div"
-        count={rows.length}
+        count={filteredRows.length}
         rowsPerPage={rowsPerPage}
         page={page}
         onPageChange={handleChangePage}
