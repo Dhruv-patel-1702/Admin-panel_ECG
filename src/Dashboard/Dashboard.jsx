@@ -5,11 +5,11 @@ import { Outlet } from "react-router-dom";
 const Dashboard = () => {
   return (
     <div className="flex justify-center items-center  bg-white w-full ">
-      <div className="flex w-full px-3 gap-3 h-screen ">
-        <div className="w-[270px]">
+      <div className="flex w-full px-4 h-screen ">
+        <div className="w-[250px]">
           <Sidebar />
         </div>
-        <div className="flex-1 p-4">
+        <div className=" flex-1 p-4">
           <Outlet />
         </div>
       </div>

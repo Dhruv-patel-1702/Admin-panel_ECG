@@ -207,7 +207,7 @@ const DeviceList = () => {
   return (
     <>
       <Header name="DeviceList" />
-      <div className="flex space-x-4 mt-20 mb-4 w-[50%]">
+      <div className="flex space-x-4 mt-5 mb-4 w-[50%]">
         <input
           type="text"
           placeholder="Search by DeviceName"
@@ -227,7 +227,7 @@ const DeviceList = () => {
       </div>
       <TableContainer
         className="shadow-lg rounded-lg ml-1 overflow-auto mt-4"
-        style={{ maxHeight: "700px" }}
+        style={{ maxHeight: "500px" }}
       >
         <Table stickyHeader className="px-2">
           <TableHead className="bg-[#9fb1e7] ">

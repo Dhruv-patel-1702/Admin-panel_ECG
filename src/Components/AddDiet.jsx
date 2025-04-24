@@ -38,9 +38,9 @@ const AddDiet = (props) => {
         name="Diet Preferences"
         style={{ position: "fixed", top: 0, width: "100%", zIndex: 10 }}
       />
-      <div className="flex justify-center items-center h-screen  rounded-lg m-2">
+      <div className="flex justify-center items-center h-screen  rounded-lg ">
         <div className="w-[50%] bg-white shadow-lg p-5 rounded-xl">
-          <form onSubmit={handleSubmit} className="p-6 ">
+          <form onSubmit={handleSubmit} className="p-6">
             <input
               className="input-box border rounded-lg p-2 mb-4 w-full"
               type="text"

@@ -223,7 +223,7 @@ const UserList = (props) => {
     <>
       <Header name="UserList" />
      
-      <div className="flex space-x-4 mt-20 mb-4 w-[70%]">
+      <div className="flex space-x-4 mt-5 mb-4 w-[70%]">
         <input
           type="text"
           placeholder="Search by Name"
@@ -294,7 +294,7 @@ const UserList = (props) => {
       </div>
       <TableContainer
         className="shadow-lg rounded-lg overflow-auto mt-4"
-        style={{ maxHeight: "700px" }}
+        style={{ maxHeight: "500px" }}
       >
         <Table stickyHeader>
           <TableHead className="bg-[#9fb1e7]">

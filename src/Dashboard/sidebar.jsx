@@ -28,8 +28,8 @@ const Sidebar = () => {
     { icon: <ContactPhoneIcon />, text: "Contact Us", path: "/contactus" },
   ];
   return (
-    <div className="w-[270px] h-[97vh] bg-[#28282b] p-4 flex flex-col mt-3 ml-3 rounded-xl fixed ">
-      <div className="flex items-center justify-center gap-3 px-3 mb-6 ">
+    <div className="w-[250px] h-[97vh] bg-[#28282b] p-4 flex flex-col mt-3 rounded-xl fixed ">
+      <div className="flex items-center justify-center gap-3 px-3 mb-4">
         <Link to="/userlist">
           <h2 className="text-white/90 text-xl font-medium mt-2">ECG Admin</h2>
         </Link>
@@ -37,11 +37,11 @@ const Sidebar = () => {
       <nav className="flex-1 px-2">
         <ul>
           {menuItems.map((item, index) => (
-            <li key={index} className="my-2">
+            <li key={index} className="my-1">
               <NavLink
                 to={item.path}
                 className={({ isActive }) =>
-                  `flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+                  `flex items-center gap-3 px-4 py-2 rounded-lg transition-colors ${
                     isActive
                       ? "bg-[#6178bc] text-white"
                       : "text-gray-400 hover:bg-white/10"

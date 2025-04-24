@@ -97,8 +97,8 @@ const ContactUs = () => {
     <>
       <Header name="Contact Us" />
       <TableContainer
-        className="shadow-lg rounded-lg ml-1 overflow-auto mt-14 "
-        style={{ height: "795px" }}
+        className="shadow-lg rounded-lg ml-1 overflow-auto mt-5 "
+        style={{ height: "550px" }}
         name="UserDetails"
       >
         <Table stickyHeader className="px-2">

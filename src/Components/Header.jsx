@@ -26,7 +26,7 @@ const Header = (props) => {
   }, [showDropdown]);
 
   return (
-    <div className="fixed top-0  z-10 w-[82%] mt-3  bg-white">
+    <div className="mx-auto">
       <div className="flex justify-between items-center border-b-2 border-gray-500 pb-2">
         <div>
         <h1 className="text-xl font-semibold">{props.name}</h1>

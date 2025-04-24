@@ -32,10 +32,10 @@ const DietPreferences = () => {
   };
 
   return (
-    <div className={`mt-20 ${isModalOpen ? "overflow-hidden" : ""}`}>
+    <div className={` ${isModalOpen ? "overflow-hidden" : ""}`}>
       <Header name="Diet Preferences" style={{ position: "fixed", top: 0, width: "100%", zIndex: 10 }} />
-      <div className="flex justify-between items-center mb-5 px-6">
-        <h2 className="text-xl font-bold mb-4">Add Diet Preference</h2>
+      <div className="flex justify-between items-center mb-5 px-3 mt-5">
+        <h2 className="text-xl font-bold ">Add Diet Preference</h2>
         <button
           className="submit-button bg-[#6178bc] text-white py-2 px-4 rounded-lg hover:bg-[#50639e]"
           onClick={() => navigate("/adddiet")}

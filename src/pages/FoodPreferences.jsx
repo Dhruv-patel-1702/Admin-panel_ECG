@@ -134,11 +134,11 @@ const FoodPreferences = () => {
   };
 
   return (
-    <div className="flex flex-col md:flex-row justify-center items-center min-h-screen w-full">
+    <div className="flex flex-col md:flex-row justify-center items-center  w-full">
       <div className="w-full">
         <Header name="Food Preferences" />
-        <div className="p-4 bg-white w-full mt-16 ">
-          <div className=" mb-4 flex flex-col items-center md:flex-row md:space-x-4 fixed top-24 z-10 bg-white ">
+        <div className="p-4 bg-white w-full mt-10 ">
+          <div className=" mb-4 flex flex-col items-center md:flex-row md:space-x-4 fixed top-20 z-10 bg-white ">
             <input
               type="text"
               name="name"
@@ -179,10 +179,10 @@ const FoodPreferences = () => {
               <option>Vegan</option>
             </select>
           </div>
-          <div className="flex justify-end w-full fixed top-24 right-10">
+          <div className="flex justify-end w-full fixed top-20 right-10">
             <button
               onClick={handleAddOrUpdateFood}
-              className="flex justify-center items-center text-base bg-[#6178bc] text-white rounded p-2 hover:bg-[#50639e] transition h-10 w-full md:w-auto"
+              className="flex justify-center items-center text-base bg-[#6178bc] text-white rounded p-2 px-5 hover:bg-[#50639e] transition h-10 w-full md:w-auto"
             >
               <span className="text-xl mr-1">+</span>
               ADD NEW FOOD

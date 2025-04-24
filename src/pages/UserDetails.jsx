@@ -9,8 +9,8 @@ import { Card, CardContent, Grid } from '@mui/material';
 const UserDetailHeader = () => {
   return (
     <div>
-      <div className="bg-white shadow-md p-4 flex justify-between items-center mt-16 rounded-xl">
         <Header name="User Details"/>
+      <div className="bg-white shadow-md p-4 flex justify-between items-center mt-5 rounded-xl">
         <Breadcrumbs aria-label="breadcrumb">
           <Button color="inherit" startIcon={<Home />}>
             Home
