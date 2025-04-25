@@ -8,9 +8,10 @@ import ECG_dashboard from "./pages/ECG_dashboard";
 import UserDetails from "./pages/UserDetails";
 import DeviceDetails from './pages/DeviceDetails';
 import FoodPreferences from "./pages/FoodPreferences";
-import DietPreferences from "./pages/DietPreferences";
 import ContactUs from "./pages/ContactUs";
-import Adddiet from './Components/AddDiet'
+import ChangePassword from './pages/Change_Password/change_password';
+import Createplan from "./Components/Createplan";
+import Addplan from "./pages/Addplan";
 
 function App() {
   return (
@@ -24,9 +25,10 @@ function App() {
           <Route path="/userdetails" element={<UserDetails />} />
           <Route path="/devicedetails" element={<DeviceDetails />} />
           <Route path="/foodpreferences" element={<FoodPreferences />} />
-          <Route path="/dietpreferences" element={<DietPreferences />} />
+          <Route path="/addplan" element={<Addplan />} />
           <Route path="/contactus" element={<ContactUs />} />
-          <Route path="/adddiet" element={<Adddiet />} />
+          <Route path="/createplan" element={<Createplan />} />
+          <Route path="/ChangePassword" element={<ChangePassword />} />
         </Route>
       </Routes>
     </BrowserRouter>

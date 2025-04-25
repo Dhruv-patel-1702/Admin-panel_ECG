@@ -9,7 +9,7 @@ const Dashboard = () => {
         <div className="w-[250px]">
           <Sidebar />
         </div>
-        <div className=" flex-1 p-4">
+        <div className="flex-1 p-4">
           <Outlet />
         </div>
       </div>
