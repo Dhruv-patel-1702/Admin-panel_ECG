@@ -16,28 +16,29 @@ import {
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
 import Header from "./Header";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import axios from "axios";
 
 const Createplan = (props) => {
   const navigate = useNavigate();
   const [title, settitle] = useState("");
   const [title2, settitle2] = useState("");
   const [photo, setphoto] = useState(null);
-  const [photoPreview, setPhotoPreview] = useState(null); // For displaying the photo preview
-  const [categoty, setcategoty] = useState("");
+  const [photoPreview, setPhotoPreview] = useState(null);
+  const [category, setcategory] = useState(""); // Corrected typo here
   const [description, setdescription] = useState("");
   const [description2, setdescription2] = useState("");
   const [duration_in_day, setduration_in_day] = useState("");
   const [times_per_week, settimes_per_week] = useState("");
   const [difficulty, setdifficulty] = useState("");
-  const [schedule, setSchedule] = useState([]); // Array to manage schedule items
+  const [schedule, setSchedule] = useState([]);
 
   const handlePhotoUpload = (event) => {
     const file = event.target.files[0];
-
-    // Validate file type
     if (file && (file.type === "image/jpeg" || file.type === "image/png")) {
-      setphoto(file); // Set the uploaded file
-      setPhotoPreview(URL.createObjectURL(file)); // Generate a preview URL
+      setphoto(file);
+      setPhotoPreview(URL.createObjectURL(file));
     } else {
       alert("Please upload a valid JPEG or PNG image.");
     }
@@ -58,26 +59,102 @@ const Createplan = (props) => {
     setSchedule(updatedSchedule);
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
 
-    const newPlan = {
-      title,
-      title2,
-      photo,
-      categoty,
-      description,
-      description2,
-      duration_in_day,
-      times_per_week,
-      difficulty,
-      schedule,
-    };
+    // Validation
+    if (title.length > 120) {
+      alert("Title must be less than or equal to 120 characters.");
+      return;
+    }
+    if (!/^\d+$/.test(duration_in_day)) {
+      alert("Duration (in days) must be a valid number.");
+      return;
+    }
 
-    console.log("Plan submitted:", newPlan);
-    navigate("/addplan");
+    if (!photo) {
+      alert("Please upload a photo.");
+      return;
+    }
+
+    if (schedule.length === 0) {
+      alert("Please add at least one week to the schedule.");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("title", title);
+    formData.append("title2", title2);
+    formData.append("photo", photo);
+    formData.append("category", category);
+    formData.append("description", description);
+    formData.append("description2", description2);
+    formData.append("duration_in_day", duration_in_day);
+    formData.append("times_per_week", times_per_week);
+    formData.append("difficulty", difficulty);
+
+    // Dynamically append weekNumber and week_description as indexed keys
+    schedule.forEach((item, index) => {
+      formData.append(`weekNumber[${index}]`, item.weekNumber);
+      formData.append(`week_description[${index}]`, item.week_description);
+    });
+
+    try {
+      const token = localStorage.getItem("token");
+
+      const response = await axios.post(
+        "https://ecg-wv62.onrender.com/api/plan/add",
+        formData,
+        {
+          headers: {
+            Authorization: token,
+          },
+        }
+      );
+
+      if (response.status === 201) {
+        toast.success("Plan successfully created!", {
+          position: "bottom-right",
+        });
+        navigate("/addplan");
+      } else {
+        throw new Error("Failed to create plan.");
+      }
+    } catch (error) {
+      toast.error("Error creating plan. Please try again.", {
+        position: "bottom-right",
+      });
+      console.error("API Error:", error);
+    }
   };
-  
+
+  const handleTitleChange = (e) => {
+    const value = e.target.value;
+    if (value.length <= 120) {
+      settitle(value);
+    }
+  };
+
+  const handleDurationChange = (e) => {
+    const value = e.target.value;
+    if (/^\d*$/.test(value)) {
+      setduration_in_day(value);
+    }
+  };
+
+  const handleTimesPerWeekChange = (e) => {
+    const value = e.target.value;
+    if (/^\d*$/.test(value)) {
+      settimes_per_week(value);
+    }
+  };
+
+  const handleOverviewTitleChange = (e) => {
+    const value = e.target.value;
+    if (value.length <= 120) {
+      settitle2(value);
+    }
+  };
 
   return (
     <div>
@@ -108,7 +185,8 @@ const Createplan = (props) => {
                   margin="normal"
                   size="small"
                   value={title}
-                  onChange={(e) => settitle(e.target.value)}
+                  onChange={handleTitleChange}
+                  helperText={`${title.length}/120 characters`}
                 />
                 <TextField
                   fullWidth
@@ -117,9 +195,11 @@ const Createplan = (props) => {
                   margin="normal"
                   size="small"
                   value={title2}
-                  onChange={(e) => settitle2(e.target.value)}
+                  onChange={handleOverviewTitleChange}
+                  helperText={`${title2.length}/120 characters`}
                 />
               </div>
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <TextField
                   fullWidth
@@ -129,8 +209,8 @@ const Createplan = (props) => {
                   size="small"
                   value={description}
                   onChange={(e) => setdescription(e.target.value)}
-                  multiline // Enables textarea functionality
-                  rows={3} // Sets the number of visible rows
+                  multiline
+                  rows={3}
                 />
                 <TextField
                   fullWidth
@@ -140,10 +220,11 @@ const Createplan = (props) => {
                   size="small"
                   value={description2}
                   onChange={(e) => setdescription2(e.target.value)}
-                  multiline // Enables textarea functionality
-                  rows={3} // Sets the number of visible rows
+                  multiline
+                  rows={3}
                 />
               </div>
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormControl
                   fullWidth
@@ -155,8 +236,8 @@ const Createplan = (props) => {
                   <Select
                     labelId="category-label"
                     id="category-select"
-                    value={categoty}
-                    onChange={(e) => setcategoty(e.target.value)}
+                    value={category}
+                    onChange={(e) => setcategory(e.target.value)}
                     label="Category"
                   >
                     <MenuItem value="Meal Plan">Meal Plan</MenuItem>
@@ -186,8 +267,6 @@ const Createplan = (props) => {
                 </FormControl>
               </div>
 
-             
-
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <TextField
                   fullWidth
@@ -195,17 +274,24 @@ const Createplan = (props) => {
                   variant="outlined"
                   margin="normal"
                   size="small"
+                  type="number"
                   value={duration_in_day}
-                  onChange={(e) => setduration_in_day(e.target.value)}
+                  onChange={handleDurationChange}
                 />
                 <TextField
                   fullWidth
+                  type="number"
                   label="Times Per Week"
                   variant="outlined"
                   margin="normal"
                   size="small"
                   value={times_per_week}
-                  onChange={(e) => settimes_per_week(e.target.value)}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    if (/^\d*$/.test(value)) {
+                      settimes_per_week(value);
+                    }
+                  }}
                 />
               </div>
 
@@ -228,7 +314,7 @@ const Createplan = (props) => {
                 >
                   <TextField
                     fullWidth
-                    label={`Week Number ${index + 1}`}
+                    label="Week Number"
                     variant="outlined"
                     margin="normal"
                     size="small"
@@ -239,7 +325,7 @@ const Createplan = (props) => {
                   />
                   <TextField
                     fullWidth
-                    label={`Week Description ${index + 1}`}
+                    label="Week Description"
                     variant="outlined"
                     margin="normal"
                     size="small"
@@ -253,60 +339,49 @@ const Createplan = (props) => {
                     }
                   />
                   <IconButton
+                    color="error"
                     onClick={() => handleRemoveSchedule(index)}
-                    sx={{ marginTop: 2, width: "40px" }}
+                    sx={{ marginTop: "20px", width: "40px", height: "40px" }}
                   >
                     <RemoveIcon />
                   </IconButton>
                 </div>
               ))}
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4" mt={2}>
-                <div>
-                  <Typography
-                    variant="body1"
-                    sx={{ marginBottom: 1, fontWeight: "bold" }}
-                  >
-                    Upload Photo
-                  </Typography>
-                  <input
-                    type="file"
-                    accept="image/jpeg, image/png"
-                    onChange={handlePhotoUpload}
-                    style={{ display: "block", marginBottom: "16px" }}
+              <div className="grid grid-cols-1 gap-4 items-center">
+                <Typography variant="h6" mt={1}>
+                  Photo Upload
+                </Typography>
+                <input
+                  type="file"
+                  accept="image/jpeg, image/png"
+                  onChange={handlePhotoUpload}
+                />
+                {photoPreview && (
+                  <img
+                    src={photoPreview}
+                    alt="Preview"
+                    style={{
+                      marginTop: "10px",
+                      width: "200px", // Corrected to lowercase 'width'
+                      height: "200px", // Corrected to lowercase 'height'
+                      borderRadius: "10px",
+                    }}
                   />
-                  {photoPreview && (
-                    <div>
-                      <img
-                        src={photoPreview}
-                        alt="Preview"
-                        style={{
-                          width: "100px",
-                          height: "100px",
-                          objectFit: "cover",
-                          marginTop: "8px",
-                          borderRadius: "8px",
-                        }}
-                      />
-                    </div>
-                  )}
-                </div>
+                )}
               </div>
-              <Button
-                variant="contained"
-                type="submit"
+
+              <Box
                 sx={{
-                  backgroundColor: "#6178bc",
-                  ":hover": { backgroundColor: "#50639e" },
-                  mt: 2,
-                  width: "20%",
                   display: "flex",
-                  marginX: "auto",
+                  justifyContent: "center",
+                  mt: 3,
                 }}
-                fullWidth
               >
-                Submit
-              </Button>
+                <Button type="submit" variant="contained">
+                  Submit Plan
+                </Button>
+              </Box>
             </form>
           </Paper>
         </Container>

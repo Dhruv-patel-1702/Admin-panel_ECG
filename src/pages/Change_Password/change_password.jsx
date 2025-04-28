@@ -52,7 +52,7 @@ const ChangePassword = () => {
 
     try {
       const response = await axios.put(
-        "https://ecg-s6x7.onrender.com/api/appAdmin/changepassword",
+        "https://ecg-wv62.onrender.com/api/appAdmin/changepassword",
         {
           oldPassword: currentPassword, // ✅ correct key
           newPassword: newPassword,

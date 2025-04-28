@@ -17,7 +17,7 @@ const Login = () => {
     setIsLoading(true);
 
     try {
-      const res = await axios.post("https://ecg-s6x7.onrender.com/api/appAdmin/login", {
+      const res = await axios.post("https://ecg-wv62.onrender.com/api/appAdmin/login", {
         email: identifier,
         password: password,
       });
