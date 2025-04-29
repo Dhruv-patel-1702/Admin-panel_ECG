@@ -40,9 +40,10 @@ const Sidebar = () => {
     },
     {
       icon: <AddBoxIcon />,
-      text: "Add Plan",
+      text: " Plan",
       path: "/addplan",
     },
+    { icon: <DashboardIcon />, text: "Coupon", path: "/coupon" },
     { icon: <ContactPhoneIcon />, text: "Contact Us", path: "/contactus" },
     { icon: <LockIcon />, text: "Change Password", path: "/ChangePassword" },
   ];

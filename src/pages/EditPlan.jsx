@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import {
   TextField,
   Button,
@@ -15,152 +15,135 @@ import {
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
-import Header from "./Header";
-import { toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import Header from "../Components/Header";
 import axios from "axios";
 
-const Createplan = (props) => {
+const EditPlan = () => {
+  const { id } = useParams();
   const navigate = useNavigate();
-  const [title, settitle] = useState("");
-  const [title2, settitle2] = useState("");
-  const [photo, setphoto] = useState(null);
-  const [photoPreview, setPhotoPreview] = useState(null);
-  const [category, setcategory] = useState(""); // Corrected typo here
-  const [description, setdescription] = useState("");
-  const [description2, setdescription2] = useState("");
-  const [duration_in_day, setduration_in_day] = useState("");
-  const [times_per_week, settimes_per_week] = useState("");
-  const [difficulty, setdifficulty] = useState("");
+  const [formData, setFormData] = useState({
+    title: "",
+    title2: "",
+    description: "",
+    description2: "",
+    duration_in_day: "",
+    times_per_week: "",
+    difficulty: "",
+    category: "",
+    photo: "",
+  });
   const [schedule, setSchedule] = useState([]);
+  const [photoPreview, setPhotoPreview] = useState(null);
+
+  useEffect(() => {
+    const fetchPlan = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const res = await axios.get(
+          `https://ecg-wv62.onrender.com/api/plan/getById/${id}`,
+          {
+            headers: { Authorization: token },
+          }
+        );
+        const plan = res.data.data || res.data.plan || res.data;
+        setFormData({
+          title: plan.title,
+          title2: plan.title2,
+          description: plan.description,
+          description2: plan.description2,
+          duration_in_day: plan.duration_in_day,
+          times_per_week: plan.times_per_week,
+          week_description: plan.week_description,
+          weekNumber: plan.weekNumber,
+          difficulty: plan.difficulty,
+          category: plan.category,
+          photo: plan.photo,
+        });
+        console.log(plan.category);
+        setSchedule(plan.schedule || []);
+        setPhotoPreview(plan.photo);
+      } catch (error) {
+        console.error("Failed to load plan", error);
+      }
+    };
+
+    fetchPlan();
+  }, [id]);
+
+  const handleChange = (e) => {
+    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+  };
 
   const handlePhotoUpload = (event) => {
     const file = event.target.files[0];
-    if (file && (file.type === "image/jpeg" || file.type === "image/png")) {
-      setphoto(file);
+    if (file) {
+      setFormData((prev) => ({ ...prev, photo: file }));
       setPhotoPreview(URL.createObjectURL(file));
-    } else {
-      alert("Please upload a valid JPEG or PNG image.");
     }
   };
 
   const handleAddSchedule = () => {
-    setSchedule([...schedule, { weekNumber: "", week_description: "" }]);
+    setSchedule((prev) => [...prev, { weekNumber: "", week_description: "" }]);
   };
 
   const handleRemoveSchedule = (index) => {
-    const updatedSchedule = schedule.filter((_, i) => i !== index);
-    setSchedule(updatedSchedule);
+    setSchedule((prev) => prev.filter((_, i) => i !== index));
   };
 
   const handleScheduleChange = (index, field, value) => {
-    const updatedSchedule = [...schedule];
-    updatedSchedule[index][field] = value;
-    setSchedule(updatedSchedule);
+    setSchedule((prev) =>
+      prev.map((item, i) => (i === index ? { ...item, [field]: value } : item))
+    );
   };
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-
-    // Validation
-    if (title.length > 120) {
-      alert("Title must be less than or equal to 120 characters.");
-      return;
-    }
-    if (!/^\d+$/.test(duration_in_day)) {
-      alert("Duration (in days) must be a valid number.");
-      return;
-    }
-
-    if (!photo) {
-      alert("Please upload a photo.");
-      return;
-    }
-
-    if (schedule.length === 0) {
-      alert("Please add at least one week to the schedule.");
-      return;
-    }
-
-    const formData = new FormData();
-    formData.append("title", title);
-    formData.append("title2", title2);
-    formData.append("photo", photo);
-    formData.append("category", category);
-    formData.append("description", description);
-    formData.append("description2", description2);
-    formData.append("duration_in_day", duration_in_day);
-    formData.append("times_per_week", times_per_week);
-    formData.append("difficulty", difficulty);
-
-    // Dynamically append weekNumber and week_description as indexed keys
-    schedule.forEach((item, index) => {
-      formData.append(`schedule[${index}][weekNumber]`, item.weekNumber);
-      formData.append(`schedule[${index}][week_description]`, item.week_description);
-    });
-    
-
+  const handleSubmit = async (e) => {
+    e.preventDefault();
     try {
       const token = localStorage.getItem("token");
 
-      const response = await axios.post(
-        "https://ecg-wv62.onrender.com/api/plan/add",
-        formData,
+      const fd = new FormData(); // <-- renamed to avoid confusion
+
+      fd.append("title", formData.title);
+      fd.append("title2", formData.title2);
+      fd.append("photo", formData.photo);
+      fd.append("category", formData.category);
+      fd.append("description", formData.description);
+      fd.append("description2", formData.description2);
+      fd.append("duration_in_day", formData.duration_in_day);
+      fd.append("times_per_week", formData.times_per_week);
+      fd.append("difficulty", formData.difficulty);
+
+      schedule.forEach((item, index) => {
+        fd.append(`schedule[${index}][weekNumber]`, item.weekNumber);
+        fd.append(
+          `schedule[${index}][week_description]`,
+          item.week_description
+        );
+      });
+
+      await axios.put(
+        `https://ecg-wv62.onrender.com/api/plan/update/${id}`,
+        fd,
         {
           headers: {
             Authorization: token,
+            "Content-Type": "multipart/form-data",
           },
         }
       );
 
-      if (response.status === 201) {
-        toast.success("Plan successfully created!", {
-          position: "bottom-right",
-        });
-        navigate("/addplan");
-      } else {
-        throw new Error("Failed to create plan.");
-      }
-    } catch (error) {
-      toast.error("Error creating plan. Please try again.", {
-        position: "bottom-right",
-      });
-      console.error("API Error:", error);
-    }
-  };
-
-  const handleTitleChange = (e) => {
-    const value = e.target.value;
-    if (value.length <= 120) {
-      settitle(value);
-    }
-  };
-
-  const handleDurationChange = (e) => {
-    const value = e.target.value;
-    if (/^\d*$/.test(value)) {
-      setduration_in_day(value);
-    }
-  };
-
-  const handleTimesPerWeekChange = (e) => {
-    const value = e.target.value;
-    if (/^\d*$/.test(value)) {
-      settimes_per_week(value);
-    }
-  };
-
-  const handleOverviewTitleChange = (e) => {
-    const value = e.target.value;
-    if (value.length <= 120) {
-      settitle2(value);
+      alert("Plan updated successfully!");
+      navigate("/addplan");
+    } catch (err) {
+      console.error("Update failed", err);
+      alert("Update failed");
     }
   };
 
   return (
     <div>
       <Header
-        name="Add Plan"
+        name="Edit Plan"
         style={{ position: "fixed", top: 0, width: "100%", zIndex: 10 }}
       />
       <Box
@@ -175,7 +158,7 @@ const Createplan = (props) => {
           <Paper sx={{ padding: 4, borderRadius: 3, boxShadow: "none" }}>
             <form onSubmit={handleSubmit}>
               <Typography variant="h5" mb={2} fontWeight="bold">
-                Add Plan
+                Edit Plan
               </Typography>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -185,9 +168,10 @@ const Createplan = (props) => {
                   variant="outlined"
                   margin="normal"
                   size="small"
-                  value={title}
-                  onChange={handleTitleChange}
-                  helperText={`${title.length}/120 characters`}
+                  name="title"
+                  value={formData.title}
+                  onChange={handleChange}
+                  helperText={`${formData.title.length}/120 characters`}
                 />
                 <TextField
                   fullWidth
@@ -195,9 +179,10 @@ const Createplan = (props) => {
                   variant="outlined"
                   margin="normal"
                   size="small"
-                  value={title2}
-                  onChange={handleOverviewTitleChange}
-                  helperText={`${title2.length}/120 characters`}
+                  name="title2"
+                  value={formData.title2}
+                  onChange={handleChange}
+                  helperText={`${formData.title2.length}/120 characters`}
                 />
               </div>
 
@@ -208,8 +193,9 @@ const Createplan = (props) => {
                   variant="outlined"
                   margin="normal"
                   size="small"
-                  value={description}
-                  onChange={(e) => setdescription(e.target.value)}
+                  name="description"
+                  value={formData.description}
+                  onChange={handleChange}
                   multiline
                   rows={3}
                 />
@@ -219,8 +205,9 @@ const Createplan = (props) => {
                   variant="outlined"
                   margin="normal"
                   size="small"
-                  value={description2}
-                  onChange={(e) => setdescription2(e.target.value)}
+                  name="description2"
+                  value={formData.description2}
+                  onChange={handleChange}
                   multiline
                   rows={3}
                 />
@@ -237,8 +224,9 @@ const Createplan = (props) => {
                   <Select
                     labelId="category-label"
                     id="category-select"
-                    value={category}
-                    onChange={(e) => setcategory(e.target.value)}
+                    name="category"
+                    value={formData.category}
+                    onChange={handleChange}
                     label="Category"
                   >
                     <MenuItem value="Meal Plan">Meal Plan</MenuItem>
@@ -257,8 +245,9 @@ const Createplan = (props) => {
                   <Select
                     labelId="difficulty-label"
                     id="difficulty-select"
-                    value={difficulty}
-                    onChange={(e) => setdifficulty(e.target.value)}
+                    name="difficulty"
+                    value={formData.difficulty}
+                    onChange={handleChange}
                     label="Difficulty"
                   >
                     <MenuItem value="Easy">Beginner</MenuItem>
@@ -275,9 +264,10 @@ const Createplan = (props) => {
                   variant="outlined"
                   margin="normal"
                   size="small"
+                  name="duration_in_day"
+                  value={formData.duration_in_day}
+                  onChange={handleChange}
                   type="number"
-                  value={duration_in_day}
-                  onChange={handleDurationChange}
                 />
                 <TextField
                   fullWidth
@@ -286,13 +276,9 @@ const Createplan = (props) => {
                   variant="outlined"
                   margin="normal"
                   size="small"
-                  value={times_per_week}
-                  onChange={(e) => {
-                    const value = e.target.value;
-                    if (/^\d*$/.test(value)) {
-                      settimes_per_week(value);
-                    }
-                  }}
+                  name="times_per_week"
+                  value={formData.times_per_week}
+                  onChange={handleChange}
                 />
               </div>
 
@@ -364,8 +350,8 @@ const Createplan = (props) => {
                     alt="Preview"
                     style={{
                       marginTop: "10px",
-                      width: "200px", // Corrected to lowercase 'width'
-                      height: "200px", // Corrected to lowercase 'height'
+                      width: "200px",
+                      height: "200px",
                       borderRadius: "10px",
                     }}
                   />
@@ -380,7 +366,7 @@ const Createplan = (props) => {
                 }}
               >
                 <Button type="submit" variant="contained">
-                  Submit Plan
+                  Update Plan
                 </Button>
               </Box>
             </form>
@@ -391,4 +377,4 @@ const Createplan = (props) => {
   );
 };
 
-export default Createplan;
+export default EditPlan;

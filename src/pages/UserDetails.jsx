@@ -1,48 +1,175 @@
-// src/pages/UserDetailHeader.jsx
-import React from 'react';
-import { Breadcrumbs, Typography, Button } from '@mui/material';
-import { Home, Settings } from '@mui/icons-material';
-import Header from '../Components/Header'
-import { Card, CardContent, Grid } from '@mui/material';
+import React, { useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
+import axios from "axios";
+import {
+  CircularProgress,
+  Typography,
+  Grid,
+  Card,
+  CardContent,
+  CardHeader,
+  Divider,
+  Chip,
+  Box,
+} from "@mui/material";
+import Header from "../Components/Header";
 
+const UserDetails = () => {
+  const location = useLocation();
+  const userId = location.state?.userId;
 
-const UserDetailHeader = () => {
+  const [userData, setUserData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    if (!userId) {
+      setError("User ID not found in navigation.");
+      setLoading(false);
+      return;
+    }
+
+    const fetchUserDetails = async () => {
+      setLoading(true);
+      try {
+        const token = localStorage.getItem("token");
+
+        const res = await axios.get(
+          `https://ecg-wv62.onrender.com/api/appAdmin/user-with-family/${userId}`,
+          {
+            headers: {
+              Authorization: token,
+            },
+          }
+        );
+        setUserData(res.data.data);
+        console.log("User Details Response:", res.data.data);
+      } catch (err) {
+        console.error("Error fetching user details:", err);
+        setError("Failed to load user details.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUserDetails();
+  }, [userId]);
+
+  if (loading) {
+    return (
+      <Box display="flex" justifyContent="center" mt={10}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  if (error) {
+    return (
+      <Typography color="error" align="center" mt={5} variant="h6">
+        {error}
+      </Typography>
+    );
+  }
+
+  const { mainUser, familyMembers } = userData;
+
   return (
-    <div>
-        <Header name="User Details"/>
-      <div className="bg-white shadow-md p-4 flex justify-between items-center mt-5 rounded-xl">
-        <Breadcrumbs aria-label="breadcrumb">
-          <Button color="inherit" startIcon={<Home />}>
-            Home
-          </Button>
-          <Typography color="text-primary">User Detail</Typography>
-          <Typography color="text-secondary">67568e655b22d1c689e54280</Typography>
-        </Breadcrumbs>
-        <Button startIcon={<Settings />} color="primary">
-        </Button>
-      </div>
-      <div className="mt-4 rounded-xl h-72 overflow-hidden">
-        <img 
-          src="https://www.shutterstock.com/image-photo/medical-stethoscope-blue-banner-copy-260nw-588349949.jpg"
-          alt="loginbg" 
-          className="w-full h-full object-cover rounded-lg" 
-        />
-      </div>
-      <div className="m-5 relative bottom-20">
-        <div className="border rounded-lg shadow-md bg-white">
-          <div className="p-6">
-            <div className=' space-x-4'>
-              <div className="flex items-center justify-around space-x-5">
-                <h2 className="text-xl font-semibold text-gray-800 mb-1">Dhruv</h2>
-                <p className="text-gray-500 text-sm mb-0.5">xyz@gmail.com</p>
-                <p className="text-gray-500 text-sm">+91 1234567890</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+    <>
+      <Header name="User Details" />
+      <Box p={4}>
+        {/* User Information Section */}
+        <Card elevation={3} sx={{ mb: 4 }}>
+          <CardHeader title="User Information" />
+          <Divider />
+          <CardContent>
+            <Grid container spacing={2}>
+              <Grid item xs={12} sm={6}>
+                <Typography variant="body1">
+                  <strong>Name:</strong> {mainUser.full_name}
+                </Typography>
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <Typography variant="body1">
+                  <strong>Email:</strong> {mainUser.email}
+                </Typography>
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <Typography variant="body1">
+                  <strong>Phone:</strong> {mainUser.phoneNumber}
+                </Typography>
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <Typography variant="body1">
+                  <strong>Status:</strong>{" "}
+                    <Chip
+                      label={mainUser.status}
+                      color={mainUser.status === "active" ? "success" : "error"}
+                    />
+                </Typography>
+              </Grid>
+            </Grid>
+          </CardContent>
+        </Card>
+
+        {/* Family Members Section */}
+        <Card elevation={3}>
+          <CardHeader title="Family Members" />
+          <Divider />
+          <CardContent>
+            {familyMembers && familyMembers.length > 0 ? (
+              familyMembers.map((member, index) => (
+                <Card
+                  key={index}
+                  elevation={1}
+                  sx={{
+                    mb: 2,
+                    p: 2,
+                    backgroundColor: "#f9f9f9",
+                    borderRadius: 2,
+                  }}
+                >
+                  <Grid container spacing={2}>
+                    <Grid item xs={12} sm={4}>
+                      <Typography variant="body2">
+                        <strong>Name:</strong> {member.full_name}
+                      </Typography>
+                    </Grid>
+                    <Grid item xs={12} sm={4}>
+                      <Typography variant="body2">
+                        <strong>Relation:</strong> {member.relation}
+                      </Typography>
+                    </Grid>
+                    <Grid item xs={12} sm={4}>
+                      <Typography variant="body2">
+                        <strong>Age:</strong> {member.age}
+                      </Typography>
+                    </Grid>
+                    <Grid item xs={12} sm={4}>
+                      <Typography variant="body2">
+                        <strong>Gender:</strong> {member.gender}
+                      </Typography>
+                    </Grid>
+                    <Grid item xs={12} sm={4}>
+                      <Typography variant="body2">
+                        <strong>Weight:</strong> {member.weight} kg
+                      </Typography>
+                    </Grid>
+                    <Grid item xs={12} sm={4}>
+                      <Typography variant="body2">
+                        <strong>Height:</strong> {member.height} cm
+                      </Typography>
+                    </Grid>
+                  </Grid>
+                </Card>
+              ))
+            ) : (
+              <Typography>No family members found.</Typography>
+            )}
+          </CardContent>
+        </Card>
+      </Box>
+    </>
   );
 };
 
-export default UserDetailHeader;
+export default UserDetails;

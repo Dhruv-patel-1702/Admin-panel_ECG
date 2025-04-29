@@ -12,6 +12,9 @@ import ContactUs from "./pages/ContactUs";
 import ChangePassword from './pages/Change_Password/change_password';
 import Createplan from "./Components/Createplan";
 import Addplan from "./pages/Addplan";
+import ViewPlan from "./pages/ViewPlan";
+import EditPlan from "./pages/editplan";
+import Coupon from "./pages/coupon";
 
 function App() {
   return (
@@ -29,6 +32,10 @@ function App() {
           <Route path="/contactus" element={<ContactUs />} />
           <Route path="/createplan" element={<Createplan />} />
           <Route path="/ChangePassword" element={<ChangePassword />} />
+          <Route path="/ViewPlan/:id" element={<ViewPlan />} />
+          <Route path="/EditPlan/:id" element={<EditPlan />} />
+          <Route path="/coupon" element={<Coupon />} />
+
         </Route>
       </Routes>
     </BrowserRouter>

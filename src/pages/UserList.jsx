@@ -8,6 +8,11 @@ import {
   TableRow,
   TablePagination,
   CircularProgress,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button,
 } from "@mui/material";
 import Header from "../Components/Header";
 import { Link } from "react-router-dom";
@@ -17,6 +22,8 @@ import "react-toastify/dist/ReactToastify.css";
 
 const UserList = () => {
   const [rows, setRows] = useState([]);
+  console.log(rows);
+  
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [searchName, setSearchName] = useState("");
@@ -24,6 +31,11 @@ const UserList = () => {
   const [searchEmail, setSearchEmail] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  // New state for confirmation dialog
+  const [openConfirm, setOpenConfirm] = useState(false);
+  const [selectedUserId, setSelectedUserId] = useState(null);
+  const [selectedStatus, setSelectedStatus] = useState("active");
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -82,15 +94,13 @@ const UserList = () => {
     return matchesName && matchesMobile && matchesEmail;
   });
 
-  // ✅ Corrected Block User Function
-  const handleBlockUser = async (userId, currentStatus) => {
+  const handleBlockUser = async (userId, newStatus) => {
     try {
       const token = localStorage.getItem("token");
-      const newStatus = currentStatus === "blocked" ? "active" : "blocked"; // lowercase ✅
 
       const res = await axios.patch(
         `https://ecg-wv62.onrender.com/api/appAdmin/userStatus/${userId}`,
-        { status: newStatus }, // Correct body ✅
+        { status: newStatus },
         {
           headers: { Authorization: token },
         }
@@ -107,7 +117,6 @@ const UserList = () => {
         { position: "bottom-right" }
       );
 
-      // Update UI
       setRows((prevRows) =>
         prevRows.map((row) =>
           row.id === userId ? { ...row, status: newStatus } : row
@@ -185,20 +194,28 @@ const UserList = () => {
                           "en-GB"
                         )}
                       </TableCell>
-
-                      <TableCell
-                        sx={{
-                          color: row.status === "active" ? "#32CD32" : "red",
-                          cursor: "pointer",
-                          fontWeight: "bold",
-                        }}
-                        onClick={() => handleBlockUser(row.id, row.status)}
-                      >
-                        {row.status}
-                      </TableCell>
-
                       <TableCell>
-                        <Link to={`/userdetails`}>{row.view}</Link>
+                        <select
+                          value={row.status}
+                          onChange={(e) => {
+                            setSelectedUserId(row.id);
+                            setSelectedStatus(e.target.value);
+                            setOpenConfirm(true);
+                          }}
+                          className="p-1 border rounded font-bold"
+                          style={{
+                            color: row.status === "active" ? "#32CD32" : "red",
+                            cursor: "pointer",
+                          }}
+                        >
+                          <option value="active">Active</option>
+                          <option value="blocked">Blocked</option>
+                        </select>
+                      </TableCell>
+                      <TableCell>
+                        <Link to="/userdetails" state={{ userId: row.id }}>
+                          {row.view}
+                        </Link>
                       </TableCell>
                     </TableRow>
                   ))}
@@ -218,6 +235,40 @@ const UserList = () => {
           <ToastContainer />
         </>
       )}
+
+      {/* Confirmation Dialog */}
+      <Dialog open={openConfirm} onClose={() => setOpenConfirm(false)}>
+        <DialogTitle style={{ textAlign: "center" }}>
+          Confirm Status Change
+        </DialogTitle>
+        <DialogContent>
+          Are you sure you want to{" "}
+          <strong>{selectedStatus === "blocked" ? "block" : "activate"}</strong>{" "}
+          this profile?
+        </DialogContent>
+        <DialogActions
+          style={{ display: "flex", justifyContent: "center", margin: "auto" }}
+        >
+          <Button
+            onClick={() => setOpenConfirm(false)}
+            style={{ color: "red" }}
+          >
+            No
+          </Button>
+          <Button
+            onClick={() => {
+              handleBlockUser(
+                selectedUserId,
+                selectedStatus === "blocked" ? "blocked" : "active"
+              );
+              setOpenConfirm(false);
+            }}
+            style={{ color: "#67e464" }}
+          >
+            Yes
+          </Button>
+        </DialogActions>
+      </Dialog>
     </>
   );
 };

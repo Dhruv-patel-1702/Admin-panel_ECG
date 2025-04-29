@@ -23,7 +23,9 @@ const Login = () => {
       });
 
       const token = res.data.token;
+      const userId = res.data._id;
       localStorage.setItem("token", token);
+      localStorage.setItem("userID", userId);
 
       toast.success("Login successfully", {
         position: "bottom-right",
