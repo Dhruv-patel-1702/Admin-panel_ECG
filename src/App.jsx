@@ -13,7 +13,7 @@ import ChangePassword from './pages/Change_Password/change_password';
 import Createplan from "./Components/Createplan";
 import Addplan from "./pages/Addplan";
 import ViewPlan from "./pages/ViewPlan";
-import EditPlan from "./pages/editplan";
+import EditPlan from "./pages/EditPlan";
 import Coupon from "./pages/coupon";
 
 function App() {
