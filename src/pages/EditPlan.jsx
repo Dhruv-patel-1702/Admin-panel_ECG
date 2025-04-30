@@ -17,6 +17,8 @@ import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
 import Header from "../Components/Header";
 import axios from "axios";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const EditPlan = () => {
   const { id } = useParams();
@@ -53,13 +55,11 @@ const EditPlan = () => {
           description2: plan.description2,
           duration_in_day: plan.duration_in_day,
           times_per_week: plan.times_per_week,
-          week_description: plan.week_description,
-          weekNumber: plan.weekNumber,
           difficulty: plan.difficulty,
           category: plan.category,
           photo: plan.photo,
         });
-        console.log(plan.category);
+        
         setSchedule(plan.schedule || []);
         setPhotoPreview(plan.photo);
       } catch (error) {
@@ -71,7 +71,15 @@ const EditPlan = () => {
   }, [id]);
 
   const handleChange = (e) => {
-    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+    const { name, value } = e.target;
+
+    // Restrict title and title2 to 120 characters
+    if ((name === "title" || name === "title2") && value.length > 120) {
+      
+      return;
+    }
+
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handlePhotoUpload = (event) => {
@@ -91,6 +99,7 @@ const EditPlan = () => {
   };
 
   const handleScheduleChange = (index, field, value) => {
+    if (field === "weekNumber" && !/^\d*$/.test(value)) return;
     setSchedule((prev) =>
       prev.map((item, i) => (i === index ? { ...item, [field]: value } : item))
     );
@@ -98,27 +107,59 @@ const EditPlan = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Basic validation
+    const {
+      title,
+      title2,
+      description,
+      description2,
+      duration_in_day,
+      times_per_week,
+      difficulty,
+      category,
+      photo,
+    } = formData;
+
+    if (
+      !title ||
+      !title2 ||
+      !description ||
+      !description2 ||
+      !duration_in_day ||
+      !times_per_week ||
+      !difficulty ||
+      !category ||
+      !photo
+    ) {
+      toast.error("Please fill all required fields!");
+      return;
+    }
+
+   
+
+    if (schedule.some((item) => !item.weekNumber || !item.week_description)) {
+      toast.error("Please complete all schedule fields!");
+      return;
+    }
+
     try {
       const token = localStorage.getItem("token");
+      const fd = new FormData();
 
-      const fd = new FormData(); // <-- renamed to avoid confusion
-
-      fd.append("title", formData.title);
-      fd.append("title2", formData.title2);
-      fd.append("photo", formData.photo);
-      fd.append("category", formData.category);
-      fd.append("description", formData.description);
-      fd.append("description2", formData.description2);
-      fd.append("duration_in_day", formData.duration_in_day);
-      fd.append("times_per_week", formData.times_per_week);
-      fd.append("difficulty", formData.difficulty);
+      fd.append("title", title);
+      fd.append("title2", title2);
+      fd.append("photo", photo);
+      fd.append("category", category);
+      fd.append("description", description);
+      fd.append("description2", description2);
+      fd.append("duration_in_day", duration_in_day);
+      fd.append("times_per_week", times_per_week);
+      fd.append("difficulty", difficulty);
 
       schedule.forEach((item, index) => {
         fd.append(`schedule[${index}][weekNumber]`, item.weekNumber);
-        fd.append(
-          `schedule[${index}][week_description]`,
-          item.week_description
-        );
+        fd.append(`schedule[${index}][week_description]`, item.week_description);
       });
 
       await axios.put(
@@ -132,28 +173,20 @@ const EditPlan = () => {
         }
       );
 
-      alert("Plan updated successfully!");
-      navigate("/addplan");
+      toast.success("Plan updated successfully!");
+      setTimeout(() => {
+        navigate("/addplan");
+      }, 2000); // 1 second delay
     } catch (err) {
       console.error("Update failed", err);
-      alert("Update failed");
+      toast.error("Update failed!");
     }
   };
 
   return (
     <div>
-      <Header
-        name="Edit Plan"
-        style={{ position: "fixed", top: 0, width: "100%", zIndex: 10 }}
-      />
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          pt: 0,
-        }}
-      >
+      <Header name="Edit Plan" />
+      <Box sx={{ display: "flex", justifyContent: "center", pt: 0 }}>
         <Container maxWidth="md">
           <Paper sx={{ padding: 4, borderRadius: 3, boxShadow: "none" }}>
             <form onSubmit={handleSubmit}>
@@ -161,69 +194,57 @@ const EditPlan = () => {
                 Edit Plan
               </Typography>
 
+              {/* Title Fields */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <TextField
-                  fullWidth
                   label="Title"
-                  variant="outlined"
-                  margin="normal"
-                  size="small"
                   name="title"
                   value={formData.title}
                   onChange={handleChange}
+                  fullWidth
                   helperText={`${formData.title.length}/120 characters`}
+                  size="small"
                 />
                 <TextField
-                  fullWidth
                   label="Overview Title"
-                  variant="outlined"
-                  margin="normal"
-                  size="small"
                   name="title2"
                   value={formData.title2}
                   onChange={handleChange}
+                  fullWidth
                   helperText={`${formData.title2.length}/120 characters`}
+                  size="small"
                 />
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Description Fields */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
                 <TextField
-                  fullWidth
                   label="Description"
-                  variant="outlined"
-                  margin="normal"
-                  size="small"
                   name="description"
                   value={formData.description}
                   onChange={handleChange}
                   multiline
                   rows={3}
+                  fullWidth
+                  size="small"
                 />
                 <TextField
-                  fullWidth
                   label="Overview Description"
-                  variant="outlined"
-                  margin="normal"
-                  size="small"
                   name="description2"
                   value={formData.description2}
                   onChange={handleChange}
                   multiline
                   rows={3}
+                  fullWidth
+                  size="small"
                 />
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <FormControl
-                  fullWidth
-                  variant="outlined"
-                  margin="normal"
-                  size="small"
-                >
-                  <InputLabel id="category-label">Category</InputLabel>
+              {/* Dropdown Fields */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                <FormControl fullWidth size="small">
+                  <InputLabel>Category</InputLabel>
                   <Select
-                    labelId="category-label"
-                    id="category-select"
                     name="category"
                     value={formData.category}
                     onChange={handleChange}
@@ -234,17 +255,9 @@ const EditPlan = () => {
                     <MenuItem value="Exercises">Exercises</MenuItem>
                   </Select>
                 </FormControl>
-
-                <FormControl
-                  fullWidth
-                  variant="outlined"
-                  margin="normal"
-                  size="small"
-                >
-                  <InputLabel id="difficulty-label">Difficulty</InputLabel>
+                <FormControl fullWidth size="small">
+                  <InputLabel>Difficulty</InputLabel>
                   <Select
-                    labelId="difficulty-label"
-                    id="difficulty-select"
                     name="difficulty"
                     value={formData.difficulty}
                     onChange={handleChange}
@@ -257,38 +270,33 @@ const EditPlan = () => {
                 </FormControl>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Number Inputs */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
                 <TextField
-                  fullWidth
                   label="Duration (in days)"
-                  variant="outlined"
-                  margin="normal"
-                  size="small"
                   name="duration_in_day"
                   value={formData.duration_in_day}
                   onChange={handleChange}
                   type="number"
+                  fullWidth
+                  size="small"
                 />
                 <TextField
-                  fullWidth
-                  type="number"
                   label="Times Per Week"
-                  variant="outlined"
-                  margin="normal"
-                  size="small"
                   name="times_per_week"
                   value={formData.times_per_week}
                   onChange={handleChange}
+                  type="number"
+                  fullWidth
+                  size="small"
                 />
               </div>
 
-              <Typography variant="h6" mt={1}>
+              {/* Schedule Fields */}
+              <Typography variant="h6" mt={3}>
                 <div className="flex items-center justify-between w-1/2">
                   <label>Schedule</label>
-                  <IconButton
-                    onClick={handleAddSchedule}
-                    sx={{ marginLeft: 1 }}
-                  >
+                  <IconButton onClick={handleAddSchedule}>
                     <AddIcon />
                   </IconButton>
                 </div>
@@ -300,45 +308,36 @@ const EditPlan = () => {
                   className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center"
                 >
                   <TextField
-                    fullWidth
                     label="Week Number"
-                    variant="outlined"
-                    margin="normal"
-                    size="small"
                     value={item.weekNumber}
                     onChange={(e) =>
                       handleScheduleChange(index, "weekNumber", e.target.value)
                     }
+                    fullWidth
+                    size="small"
                   />
                   <TextField
-                    fullWidth
                     label="Week Description"
-                    variant="outlined"
-                    margin="normal"
-                    size="small"
                     value={item.week_description}
                     onChange={(e) =>
-                      handleScheduleChange(
-                        index,
-                        "week_description",
-                        e.target.value
-                      )
+                      handleScheduleChange(index, "week_description", e.target.value)
                     }
+                    fullWidth
+                    size="small"
                   />
                   <IconButton
                     color="error"
                     onClick={() => handleRemoveSchedule(index)}
-                    sx={{ marginTop: "20px", width: "40px", height: "40px" }}
+                    sx={{ mt: 1 }}
                   >
                     <RemoveIcon />
                   </IconButton>
                 </div>
               ))}
 
-              <div className="grid grid-cols-1 gap-4 items-center">
-                <Typography variant="h6" mt={1}>
-                  Photo Upload
-                </Typography>
+              {/* Photo Upload */}
+              <div className="mt-4">
+                <Typography variant="h6">Photo Upload</Typography>
                 <input
                   type="file"
                   accept="image/jpeg, image/png"
@@ -358,13 +357,8 @@ const EditPlan = () => {
                 )}
               </div>
 
-              <Box
-                sx={{
-                  display: "flex",
-                  justifyContent: "center",
-                  mt: 3,
-                }}
-              >
+              {/* Submit Button */}
+              <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
                 <Button type="submit" variant="contained">
                   Update Plan
                 </Button>
@@ -373,6 +367,7 @@ const EditPlan = () => {
           </Paper>
         </Container>
       </Box>
+      <ToastContainer position="bottom-right" />
     </div>
   );
 };

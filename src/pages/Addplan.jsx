@@ -41,7 +41,6 @@ const Addplan = () => {
   const navigate = useNavigate();
   const [plans, setPlans] = useState([]);
   const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
   const [openDialog, setOpenDialog] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState(null);
   const [newStatus, setNewStatus] = useState("");
@@ -79,11 +78,6 @@ const Addplan = () => {
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
-  };
-
-  const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(+event.target.value);
-    setPage(0);
   };
 
   const handleStatusChange = (plan, status) => {
@@ -150,8 +144,9 @@ const Addplan = () => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {plans
-                  .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                {[...plans]
+                  .reverse()
+                  .slice(page * 10, (page + 1) * 10)
                   .map((plan) => {
                     return (
                       <TableRow
@@ -211,9 +206,9 @@ const Addplan = () => {
                                 }}
                                 className="border px-2 py-1 rounded"
                               >
-                                <option value="active">Basic</option>
-                                <option value="inactive">Pro</option>
-                                <option value="draft">Premium</option>
+                                <option value="Basic">Basic</option>
+                                <option value="Pro">Pro</option>
+                                <option value="Premium">Premium</option>
                               </select>
                             );
                           } else if (column.id === "actions") {
@@ -257,13 +252,12 @@ const Addplan = () => {
             </Table>
           </TableContainer>
           <TablePagination
-            rowsPerPageOptions={[10, 25, 100]}
             component="div"
             count={plans.length}
-            rowsPerPage={rowsPerPage}
             page={page}
+            rowsPerPage={10}
+            rowsPerPageOptions={[]}
             onPageChange={handleChangePage}
-            onRowsPerPageChange={handleChangeRowsPerPage}
           />
         </Paper>
       </div>

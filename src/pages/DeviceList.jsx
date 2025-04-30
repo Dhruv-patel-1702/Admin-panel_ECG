@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import {
   Table,
   TableBody,
@@ -46,7 +48,9 @@ const DeviceList = () => {
 
   const fetchData = async () => {
     try {
-      const response = await axios.get("https://ecg-wv62.onrender.com/api/device/getall");
+      const response = await axios.get(
+        "https://ecg-wv62.onrender.com/api/device/getall"
+      );
       const data = response.data.devices || response.data.data || response.data;
       setRows(data);
     } catch (error) {
@@ -68,11 +72,13 @@ const DeviceList = () => {
   };
 
   const filteredRows = Array.isArray(rows)
-    ? rows.filter(
-        (row) =>
-          row.name?.toLowerCase().includes(deviceNameQuery.toLowerCase()) &&
-          row.type?.toLowerCase().includes(typeQuery.toLowerCase())
-      )
+    ? rows
+        .filter(
+          (row) =>
+            row.name?.toLowerCase().includes(deviceNameQuery.toLowerCase()) &&
+            row.type?.toLowerCase().includes(typeQuery.toLowerCase())
+        )
+        .reverse()
     : [];
 
   const handleOpenAdd = () => {
@@ -96,11 +102,27 @@ const DeviceList = () => {
 
   const confirmDelete = async () => {
     try {
-      await axios.delete(`https://ecg-wv62.onrender.com/api/device/delete/${deviceToDelete}`);
+      await axios.delete(
+        `https://ecg-wv62.onrender.com/api/device/delete/${deviceToDelete}`
+      );
       setConfirmOpen(false);
       fetchData();
+      // Show success message for delete
+      toast.success("Device deleted successfully!", {
+        position: "bottom-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
     } catch (error) {
       console.error("Error deleting device:", error);
+      // Show error message if deletion fails
+      toast.error("Error deleting device. Please try again.", {
+        position: "bottom-right",
+        autoClose: 3000,
+      });
     }
   };
 
@@ -111,8 +133,29 @@ const DeviceList = () => {
           `https://ecg-wv62.onrender.com/api/device/update/${selectedDevice._id}`,
           newDevice
         );
+        // Show success message for update
+        toast.success("Device updated successfully!", {
+          position: "bottom-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+        });
       } else {
-        await axios.post("https://ecg-wv62.onrender.com/api/device/add", newDevice);
+        await axios.post(
+          "https://ecg-wv62.onrender.com/api/device/add",
+          newDevice
+        );
+        // Show success message for adding new device
+        toast.success("Device added successfully!", {
+          position: "bottom-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+        });
       }
       setOpen(false);
       setNewDevice({ name: "", type: "" });
@@ -121,6 +164,16 @@ const DeviceList = () => {
       fetchData();
     } catch (error) {
       console.error("Error saving device:", error);
+      // Show error message
+      toast.error(
+        editMode
+          ? "Error updating device. Please try again."
+          : "Error adding device. Please try again.",
+        {
+          position: "bottom-right",
+          autoClose: 3000,
+        }
+      );
     }
   };
 
@@ -144,11 +197,10 @@ const DeviceList = () => {
         </div>
         <Button
           variant="contained"
-          color="primary"
           onClick={handleOpenAdd}
-          sx={{ height: "42px" }}
+          sx={{ height: "42px"  , bgcolor:"#6178bc"}}
         >
-          Add Device
+         + Add Device
         </Button>
       </div>
 
@@ -168,40 +220,51 @@ const DeviceList = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {filteredRows
-              .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-              .map((row, index) => (
-                <TableRow key={index} className="hover:bg-gray-100">
-                  <TableCell>{row.unique_id || row.deviceId}</TableCell>
-                  <TableCell>{row.name}</TableCell>
-                  <TableCell>{row.type}</TableCell>
-                  <TableCell>{row.status}</TableCell>
-                  <TableCell>
-                    <div className="flex space-x-2 items-center">
-                      <EditIcon
-                        className="text-blue-500 cursor-pointer"
-                        onClick={() => handleEdit(row)}
-                      />
-                      <DeleteIcon
-                        className="text-red-500 cursor-pointer"
-                        onClick={() => handleDelete(row._id)}
-                      />
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
+            {filteredRows.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={5} align="center">
+                  No device available!
+                </TableCell>
+              </TableRow>
+            ) : (
+              filteredRows
+                .reverse()
+                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                .map((row, index) => (
+                  <TableRow key={index} className="hover:bg-gray-100">
+                    <TableCell>{row.unique_id || row.deviceId}</TableCell>
+                    <TableCell>{row.name}</TableCell>
+                    <TableCell>{row.type}</TableCell>
+                    <TableCell>{row.status}</TableCell>
+                    <TableCell>
+                      <div className="flex space-x-2 items-center">
+                        <EditIcon
+                          className="text-blue-500 cursor-pointer"
+                          onClick={() => handleEdit(row)}
+                        />
+                        <DeleteIcon
+                          className="text-red-500 cursor-pointer"
+                          onClick={() => handleDelete(row._id)}
+                        />
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))
+            )}
           </TableBody>
         </Table>
       </TableContainer>
 
       <TablePagination
-        rowsPerPageOptions={[10, 25, 100]}
         component="div"
         count={filteredRows.length}
-        rowsPerPage={rowsPerPage}
+        rowsPerPage={10}
         page={page}
         onPageChange={handleChangePage}
-        onRowsPerPageChange={handleChangeRowsPerPage}
+        rowsPerPageOptions={[]}
+        labelDisplayedRows={({ from, to, count }) =>
+          `${from}-${to} of ${count}`
+        }
       />
 
       {/* Add/Edit Device Modal */}
@@ -212,32 +275,38 @@ const DeviceList = () => {
             fullWidth
             label="Device Name"
             value={newDevice.name}
-            onChange={(e) => setNewDevice({ ...newDevice, name: e.target.value })}
+            onChange={(e) =>
+              setNewDevice({ ...newDevice, name: e.target.value })
+            }
             sx={{ mt: 2 }}
           />
           <TextField
             fullWidth
             label="Device Type"
             value={newDevice.type}
-            onChange={(e) => setNewDevice({ ...newDevice, type: e.target.value })}
+            onChange={(e) =>
+              setNewDevice({ ...newDevice, type: e.target.value })
+            }
             sx={{ mt: 2 }}
           />
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={handleModalSubmit}
-            sx={{ mt: 2 }}
-          >
-            {editMode ? "Update" : "Submit"}
-          </Button>
+          <div className="flex justify-center mt-4">
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handleModalSubmit}
+            >
+              {editMode ? "Update" : "Submit"}
+            </Button>
+          </div>
         </Box>
       </Modal>
+      <ToastContainer />
 
       {/* Delete Confirmation Modal */}
       <Modal open={confirmOpen} onClose={() => setConfirmOpen(false)}>
         <Box sx={style}>
           <h3>Are you sure you want to delete this device?</h3>
-          <div className="flex justify-end space-x-4 mt-4">
+          <div className="flex justify-center space-x-4 mt-4">
             <Button
               variant="outlined"
               onClick={() => setConfirmOpen(false)}
@@ -245,12 +314,8 @@ const DeviceList = () => {
             >
               No
             </Button>
-            <Button
-              variant="contained"
-              onClick={confirmDelete}
-              color="error"
-            >
-              Yes, Delete
+            <Button variant="contained" onClick={confirmDelete} color="error">
+              Yes
             </Button>
           </div>
         </Box>

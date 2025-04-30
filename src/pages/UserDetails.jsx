@@ -79,7 +79,9 @@ const UserDetails = () => {
       <Box p={4}>
         {/* User Information Section */}
         <Card elevation={3} sx={{ mb: 4 }}>
-          <CardHeader title="User Information" />
+        <CardHeader title={<div className="font-semibold text-xl">User Information</div>} />
+
+
           <Divider />
           <CardContent>
             <Grid container spacing={2}>
@@ -113,7 +115,7 @@ const UserDetails = () => {
 
         {/* Family Members Section */}
         <Card elevation={3}>
-          <CardHeader title="Family Members" />
+          <CardHeader title={<div className="font-semibold text-xl">Family Member</div>} />
           <Divider />
           <CardContent>
             {familyMembers && familyMembers.length > 0 ? (

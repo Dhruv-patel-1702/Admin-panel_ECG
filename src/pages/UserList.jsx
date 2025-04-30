@@ -23,9 +23,9 @@ import "react-toastify/dist/ReactToastify.css";
 const UserList = () => {
   const [rows, setRows] = useState([]);
   console.log(rows);
-  
+
   const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const rowsPerPage = 10; // Fixed to 10 rows per page
   const [searchName, setSearchName] = useState("");
   const [searchMobile, setSearchMobile] = useState("");
   const [searchEmail, setSearchEmail] = useState("");
@@ -76,11 +76,6 @@ const UserList = () => {
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
-  };
-
-  const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
   };
 
   const filteredRows = rows.filter((row) => {
@@ -147,8 +142,17 @@ const UserList = () => {
           placeholder="Search by Mobile"
           className="flex-1 p-2 border border-gray-300 rounded"
           value={searchMobile}
-          onChange={(e) => setSearchMobile(e.target.value)}
+          onChange={(e) => {
+            const value = e.target.value;
+            // Allow only digits
+            if (/^\d*$/.test(value)) {
+              setSearchMobile(value);
+            }
+          }}
+          inputMode="numeric"
+          pattern="[0-9]*"
         />
+
         <input
           type="text"
           placeholder="Search by Email"
@@ -183,6 +187,7 @@ const UserList = () => {
               </TableHead>
               <TableBody>
                 {filteredRows
+                  .reverse()
                   .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                   .map((row, index) => (
                     <TableRow key={index} className="hover:bg-gray-100">
@@ -224,13 +229,15 @@ const UserList = () => {
           </TableContainer>
 
           <TablePagination
-            rowsPerPageOptions={[10, 25, 100]}
+            rowsPerPageOptions={[]} // Empty array removes the dropdown
             component="div"
-            count={rows.length}
+            count={filteredRows.length}
             rowsPerPage={rowsPerPage}
             page={page}
             onPageChange={handleChangePage}
-            onRowsPerPageChange={handleChangeRowsPerPage}
+            labelDisplayedRows={({ from, to, count }) =>
+              `${from}-${to} of ${count}`
+            }
           />
           <ToastContainer />
         </>

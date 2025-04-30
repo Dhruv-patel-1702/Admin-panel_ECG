@@ -59,7 +59,7 @@ const ChangePassword = () => {
         },
         {
           headers: {
-            Authorization: `Bearer ${token}`, // ✅ correct format
+            Authorization: token, // ✅ correct format
           },
         }
       );
